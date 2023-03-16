@@ -1,0 +1,5 @@
+"0","##What was the average age of people who are not going trick or treating?"
+"0",""
+"0","filtered_df <- all_data_bind_age[all_data_bind$going_out == ""Yes"", ]"
+"0",""
+"0","print(filtered_df)"

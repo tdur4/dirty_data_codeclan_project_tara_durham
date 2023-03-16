@@ -1,0 +1,5 @@
+"0","##What was the average age of people who are going out trick or treating?"
+"0",""
+"0","avg_age_GO <- mean(all_data_bind_age$age, na.rm = TRUE)"
+"0",""
+"0","#ANSWER: 38.82265"

@@ -1,0 +1,529 @@
+---
+title: "task4_analysis"
+output: html_document
+date: "2023-03-12"
+---
+
+```{r}
+##All Libraries Here 
+
+#install.packages("readxl")
+#install.packages("reshape2")
+#install.packages("writexl")
+#install.packages('plyr')
+library(tidyverse)
+library(janitor)
+library(here)
+library(readxl)
+library(stringr)
+library(reshape2)
+library(readr)
+library("writexl")
+library(plyr)
+library(dplyr)
+library(data.table)
+library(readxl)
+
+here::here()
+```
+
+```{r}
+##data imported  
+
+boing_boing_candy_2015 <- read_excel("boing-boing-candy-2015.xlsx")
+boing_boing_candy_2016 <- read_excel("boing-boing-candy-2016.xlsx")
+boing_boing_candy_2017 <- read_excel("boing-boing-candy-2017.xlsx")
+#boing_boing_candy_2015 <- read_excel(here("raw_data/boing-boing-candy-2015.xlsx"))
+#boing_boing_candy_2016 <- read_excel(here("raw_data/boing-boing-candy-2016.xlsx"))
+#boing_boing_candy_2017 <- read_excel(here("raw_data/boing-boing-candy-2017.xlsx"))
+
+```
+
+```{r}
+##boing_boing_candy_2015 data cleaned and pivoted, now with candy and rating in separate columns
+
+# -removed unnecessary columns
+# -renamed columns
+# -scipen to remove scientific notation 
+# -pivot so that candy is in one and rating in another column 
+# -add and remove further columns
+
+colnames(boing_boing_candy_2015)
+reduced_2015 <- boing_boing_candy_2015[,-97:-113] 
+colnames(reduced_2015)
+final_2015 <- reduced_2015[,-99:-107]
+colnames(final_2015)
+
+colnames(final_2015)[2] ="age"
+
+colnames(final_2015)[3] ="going_out"
+
+final_2015$numbers
+  options(scipen = 999)
+
+pivot_2015 <- final_2015 %>% 
+  pivot_longer(cols= -c(Timestamp,age, going_out), names_to = "candy_type",values_to =  "rating") %>% 
+  mutate(candy_type = str_replace(candy_type, "\\[", "")) %>% 
+  mutate(candy_type = str_replace(candy_type, "\\]", "")) %>% 
+  mutate(year = 2015)
+
+pivot_2015 <- pivot_2015 [, -c(1)]
+
+```
+
+
+```{r}
+##boing_boing_candy_2016 data cleaned and pivoted, now with candy and rating in separate columns
+
+# -removed unnecessary columns
+# -renamed columns
+# -scipen to remove scientific notation 
+# -many mutates on country so left with US, UK, Canada and Other or NA
+# -pivot so that candy is in one and rating in another column 
+# -add and remove further columns
+
+colnames(boing_boing_candy_2016)
+final_2016 <- boing_boing_candy_2016[, -c(107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,6)]
+
+colnames(final_2016)[4] ="age" 
+
+colnames(final_2016)[2] ="going_out"
+
+colnames(final_2016)[3] ="your_gender"
+
+colnames(final_2016)[5] ="country"
+
+final_2016$numbers
+  options(scipen = 999)
+
+final_country_2016 <- final_2016 %>% 
+  mutate(country = str_replace(country, "United States", "US")) %>%
+  mutate(country = str_replace(country, "USA", "US")) %>% 
+  mutate(country = str_replace(country, "usa", "US")) %>% 
+  mutate(country = str_replace(country, "US of America", "US")) %>% 	
+  mutate(country = str_replace(country, "uSA", "US")) %>% 
+  mutate(country = str_replace(country, "united states", "US")) %>% 
+  mutate(country = str_replace(country, "us", "US")) %>% 
+  mutate(country = str_replace(country, "US!", "US")) %>% 
+  mutate(country = str_replace(country, "U.S.A.", "US")) %>% 
+  mutate(country = str_replace(country, "Murica", "US")) %>% 
+  mutate(country = str_replace(country, "Usa", "US")) %>% 
+  mutate(country = str_replace(country, "U.S.", "US")) %>% 
+  mutate(country = str_replace(country, "Units States", "US")) %>% 
+  mutate(country = str_replace(country, "Us", "US")) %>% 
+  mutate(country = str_replace(country, "United states", "US")) %>% 
+  mutate(country = str_replace(country, "US USA USA", "US")) %>% 
+  mutate(country = str_replace(country, "the best one - US", "US")) %>% 
+  mutate(country = str_replace(country, "US USA! USA!	", "US")) %>% 
+  mutate(country = str_replace(country, "u.s.", "US")) %>% 
+  mutate(country = str_replace(country, "there isn't one for old men", "US")) %>% 
+  mutate(country = str_replace(country, "u.s.", "US")) %>% 
+  mutate(country = str_replace(country, "The Yoo Ess of Aaayyyyyy", "US")) %>% 
+  mutate(country = str_replace(country, "US of america", "US")) %>% 
+  mutate(country = str_replace(country, "u.s.", "US")) %>% 
+  mutate(country = str_replace(country, "u.s.", "US")) %>% 
+  mutate(country = str_replace(country, "United states", "US")) %>% 
+  mutate(country = str_replace(country, "	US!!!!!", "US")) %>% 
+  mutate(country = str_replace(country, "US USA!", "US")) %>% 
+  mutate(country = str_replace(country, "United Sates", "US")) %>% 
+  mutate(country = str_replace(country, "Sub-Canadian North America...'Merica", "US")) %>% 
+  mutate(country = str_replace(country, "Trumpistan", "US")) %>% 
+  mutate(country = str_replace(country, "America", "US")) %>% 
+  mutate(country = str_replace(country, "US USA! USA!", "US")) %>% 
+  mutate(country = str_replace(country, "Japan", "Other")) %>% 
+  mutate(country = str_replace(country, "canada", "Canada")) %>% 
+  mutate(country = str_replace(country, "france", "Other")) %>% 
+  mutate(country = str_replace(country, "A tropical island south of the equator", "Other")) %>% 
+  mutate(country = str_replace(country, "england", "UK")) %>% 
+  mutate(country = str_replace(country, "uk", "UK")) %>% 
+  mutate(country = str_replace(country, "Switzerland", "Other")) %>% 
+  mutate(country = str_replace(country, "United Kingdom", "UK")) %>% 
+  mutate(country = str_replace(country, "Korea", "Other")) %>% 
+  mutate(country = str_replace(country, "51.0", "US")) %>% 
+  mutate(country = str_replace(country, "croatia", "Other")) %>% 
+  mutate(country = str_replace(country, "Portugal", "Other")) %>% 
+  mutate(country = str_replace(country, "England", "Other")) %>% 
+  mutate(country = str_replace(country, "US USA!", "US")) %>% 
+  mutate(country = str_replace(country, "47.0", "US")) %>% 
+  mutate(country = str_replace(country, "Cascadia", "US")) %>% 
+  mutate(country = str_replace(country, "españa", "Other")) %>% 
+  mutate(country = str_replace(country, "france", "Other")) %>% 
+  mutate(country = str_replace(country, "Panama", "Other")) %>% 
+  mutate(country = str_replace(country, "United Kindom", "UK")) %>% 
+  mutate(country = str_replace(country, "AUStralia", "Other")) %>% 
+  mutate(country = str_replace(country, "hungary", "Other")) %>% 
+  mutate(country = str_replace(country, "Austria", "Other")) %>% 
+  mutate(country = str_replace(country, "New Zealand	", "Other")) %>% 
+  mutate(country = str_replace(country, "54.0", "US")) %>% 
+  mutate(country = str_replace(country, "Germany", "Other")) %>% 
+  mutate(country = str_replace(country, "Mexico", "Other")) %>% 
+  mutate(country = str_replace(country, "AUStralia", "Other")) %>% 
+  mutate(country = str_replace(country, "44.0", "US")) %>% 
+  mutate(country = str_replace(country, "Brasil", "Other")) %>% 
+  mutate(country = str_replace(country, "South Korea", "Other")) %>% 
+  mutate(country = str_replace(country, "US!!!!!", "Other")) %>% 
+  mutate(country = str_replace(country, "Philippines", "Other")) %>% 
+  mutate(country = str_replace(country, "EUA", "Other")) %>% 
+  mutate(country = str_replace(country, "45.0", "Other")) %>% 
+  mutate(country = str_replace(country, "sweden", "Other")) %>% 
+  mutate(country = str_replace(country, "The Netherlands", "Other")) %>% 
+  mutate(country = str_replace(country, "Finland", "Other")) %>% 
+  mutate(country = str_replace(country, "US USA!", "US")) %>% 
+  mutate(country = str_replace(country, "belgium", "Other")) %>%
+  mutate(country = str_replace(country, "France", "Other")) %>% 
+  mutate(country = str_replace(country, "AUStria", "Other")) %>% 
+  mutate(country = str_replace(country, "New Zealand", "Other")) %>% 
+  mutate(country = str_replace(country, "South Other", "Other"))
+  
+pivot_2016 <- final_country_2016 %>% 
+ pivot_longer(cols= -c(Timestamp,age, your_gender, country, going_out), names_to = "candy_type",values_to =  "rating") %>% 
+      mutate(candy_type = str_replace(candy_type, "\\[", "")) %>% 
+      mutate(candy_type = str_replace(candy_type, "\\]", "")) %>% 
+      mutate(year = 2016)
+
+pivot_2016 <- pivot_2016 [, -c(1)]
+
+```
+
+```{r}
+##boing_boing_candy_2017 data cleaned and pivoted, now with candy and rating in separate columns
+
+# -removed unnecessary columns
+# -renamed columns
+# -scipen to remove scientific notation 
+# -remove first characters of column names 
+# -many mutates on country so left with US, UK, Canada and Other or NA
+# -pivot so that candy is in one and rating in another column
+# -add and remove further columns
+
+colnames(boing_boing_candy_2017)
+final_2017 <- boing_boing_candy_2017[, -c(110:120)]
+
+colnames(final_2017)[4] ="age"
+
+colnames(final_2017)[2] ="going_out"
+
+colnames(final_2017)[3] ="your_gender"
+
+colnames(final_2017)[5] ="country"
+
+final_2017$numbers
+  options(scipen = 999)
+
+final_country_2017 <- final_2017 %>% 
+  mutate(country = str_replace(country, "United States", "US")) %>%
+  mutate(country = str_replace(country, "USA", "US")) %>% 
+  mutate(country = str_replace(country, "usa", "US")) %>% 
+  mutate(country = str_replace(country, "US of America", "US")) %>% 	
+  mutate(country = str_replace(country, "uSA", "US")) %>% 
+  mutate(country = str_replace(country, "united states", "US")) %>% 
+  mutate(country = str_replace(country, "us", "US")) %>% 
+  mutate(country = str_replace(country, "US!", "US")) %>% 
+  mutate(country = str_replace(country, "U.S.A.", "US")) %>% 
+  mutate(country = str_replace(country, "Murica", "US")) %>% 
+  mutate(country = str_replace(country, "Usa", "US")) %>% 
+  mutate(country = str_replace(country, "U.S.", "US")) %>% 
+  mutate(country = str_replace(country, "Units States", "US")) %>% 
+  mutate(country = str_replace(country, "Us", "US")) %>% 
+  mutate(country = str_replace(country, "United states", "US")) %>% 
+  mutate(country = str_replace(country, "US USA USA", "US")) %>% 
+  mutate(country = str_replace(country, "the best one - US", "US")) %>% 
+  mutate(country = str_replace(country, "US USA! USA!	", "US")) %>% 
+  mutate(country = str_replace(country, "u.s.", "US")) %>% 
+  mutate(country = str_replace(country, "there isn't one for old men", "US")) %>% 
+  mutate(country = str_replace(country, "u.s.", "US")) %>% 
+  mutate(country = str_replace(country, "The Yoo Ess of Aaayyyyyy", "US")) %>% 
+  mutate(country = str_replace(country, "US of america", "US")) %>% 
+  mutate(country = str_replace(country, "u.s.", "US")) %>% 
+  mutate(country = str_replace(country, "u.s.", "US")) %>% 
+  mutate(country = str_replace(country, "United states", "US")) %>% 
+  mutate(country = str_replace(country, "	US!!!!!", "US")) %>% 
+  mutate(country = str_replace(country, "US USA!", "US")) %>% 
+  mutate(country = str_replace(country, "United Sates", "US")) %>% 
+  mutate(country = str_replace(country, "Sub-Canadian North America...'Merica", "US")) %>% 
+  mutate(country = str_replace(country, "Trumpistan", "US")) %>% 
+  mutate(country = str_replace(country, "America", "US")) %>% 
+  mutate(country = str_replace(country, "US USA! USA!", "US")) %>% 
+  mutate(country = str_replace(country, "Japan", "Other")) %>% 
+  mutate(country = str_replace(country, "canada", "Canada")) %>% 
+  mutate(country = str_replace(country, "france", "Other")) %>% 
+  mutate(country = str_replace(country, "A tropical island south of the equator", "Other")) %>% 
+  mutate(country = str_replace(country, "england", "UK")) %>% 
+  mutate(country = str_replace(country, "uk", "UK")) %>% 
+  mutate(country = str_replace(country, "Switzerland", "Other")) %>% 
+  mutate(country = str_replace(country, "United Kingdom", "UK")) %>% 
+  mutate(country = str_replace(country, "Korea", "Other")) %>% 
+  mutate(country = str_replace(country, "51.0", "US")) %>% 
+  mutate(country = str_replace(country, "croatia", "Other")) %>% 
+  mutate(country = str_replace(country, "Portugal", "Other")) %>% 
+  mutate(country = str_replace(country, "England", "Other")) %>% 
+  mutate(country = str_replace(country, "US USA!", "US")) %>% 
+  mutate(country = str_replace(country, "47.0", "US")) %>% 
+  mutate(country = str_replace(country, "Cascadia", "US")) %>% 
+  mutate(country = str_replace(country, "españa", "Other")) %>% 
+  mutate(country = str_replace(country, "france", "Other")) %>% 
+  mutate(country = str_replace(country, "Panama", "Other")) %>% 
+  mutate(country = str_replace(country, "United Kindom", "UK")) %>% 
+  mutate(country = str_replace(country, "AUStralia", "Other")) %>% 
+  mutate(country = str_replace(country, "hungary", "Other")) %>% 
+  mutate(country = str_replace(country, "Austria", "Other")) %>% 
+  mutate(country = str_replace(country, "New Zealand	", "Other")) %>% 
+  mutate(country = str_replace(country, "54.0", "US")) %>% 
+  mutate(country = str_replace(country, "Germany", "Other")) %>% 
+  mutate(country = str_replace(country, "Mexico", "Other")) %>% 
+  mutate(country = str_replace(country, "AUStralia", "Other")) %>% 
+  mutate(country = str_replace(country, "44.0", "US")) %>% 
+  mutate(country = str_replace(country, "Brasil", "Other")) %>% 
+  mutate(country = str_replace(country, "South Korea", "Other")) %>% 
+  mutate(country = str_replace(country, "US!!!!!", "Other")) %>% 
+  mutate(country = str_replace(country, "Philippines", "Other")) %>% 
+  mutate(country = str_replace(country, "EUA", "Other")) %>% 
+  mutate(country = str_replace(country, "45.0", "Other")) %>% 
+  mutate(country = str_replace(country, "sweden", "Other")) %>% 
+  mutate(country = str_replace(country, "The Netherlands", "Other")) %>% 
+  mutate(country = str_replace(country, "Finland", "Other")) %>% 
+  mutate(country = str_replace(country, "US USA!", "US")) %>% 
+  mutate(country = str_replace(country, "belgium", "Other")) %>%
+  mutate(country = str_replace(country, "France", "Other")) %>% 
+  mutate(country = str_replace(country, "AUStria", "Other")) %>% 
+  mutate(country = str_replace(country, "New Zealand", "Other")) %>% 
+  mutate(country = str_replace(country, "South Other", "Other"))
+
+df2 <- final_country_2017[, c(6:109)]
+df1 <- final_country_2017[, c(1:5)]
+
+set_names(substring(colnames(df2), 5))
+
+colnames(df2) <- setNames(substring(colnames(df2), 6), colnames(df2)[7:109])
+
+final_country_2017 <- cbind(df1, df2) 
+
+f2017 <- final_country_2017[, -c(6)]
+
+
+colnames(final_2017)
+
+pivot_2017 <- f2017 %>% 
+  pivot_longer(cols= -c('Internal ID',age, your_gender, country, going_out), names_to = "candy_type",values_to =  "rating") %>% 
+  mutate(year = 2017)
+
+pivot_2017 <- pivot_2017 [, -c(1)]
+  
+
+```
+
+```{r}
+##rbindfill pivot tables for one table 
+
+all_data_bind <- rbind.fill(pivot_2015, pivot_2016, pivot_2017)
+
+all_data_bind_age <- all_data_bind %>% 
+  mutate(age = round(as.numeric(gsub("[^[:digit:]]:","",age)),0))%>%
+  mutate(age = ifelse(age > 100, NA, age)) 
+
+#write_xlsx(all_data_bind_age, "C:/Users/User 1/Documents/CodeClan/dirty_data_codeclan_project_tara_durham/task_4/clean_data/all_data_bind_age.xlsx")
+
+```
+
+```{r}
+#ANALYSIS QUESTIONS
+##What is the total number of candy ratings given across the three years. (Number of candy ratings, not the number of raters. Don’t count missing values)
+
+dim(all_data_bind)
+
+non_na_rows <- sum(complete.cases(all_data_bind$rating))
+
+#ANSWER: 772,352 total ratings across 2015, 2016, 2017
+```
+
+```{r}
+##What was the average age of people who are going out trick or treating?
+
+avg_age_GO <- mean(all_data_bind_age$age, na.rm = TRUE)
+
+#ANSWER: 38.82265
+```
+
+```{r}
+##What was the average age of people who are not going trick or treating?
+
+filtered_df <- all_data_bind_age[all_data_bind$going_out == "Yes", ]
+
+print(filtered_df)
+
+avg_age_GO <- mean(filtered_df$age, na.rm = TRUE)
+
+#ANSWER: 35.12242
+```
+
+```{r}
+##For each of joy, despair and meh, which candy bar received the most of these ratings?
+
+fjoy <- subset(all_data_bind, grepl("JOY", rating, ignore.case = TRUE) & !is.na(rating))
+
+most_joy_candy <- names(which.max(table(fjoy$candy_type)))
+
+fdespair <- subset(all_data_bind, grepl("DESPAIR", rating, ignore.case = TRUE) & !is.na(rating))
+
+most_despair_candy <- names(which.max(table(fdespair$candy_type)))
+
+fmeh <- subset(all_data_bind, grepl("MEH", rating, ignore.case = TRUE) & !is.na(rating))
+
+most_meh_candy <- names(which.max(table(fmeh$candy_type)))
+
+#ANSWER: Joy = Any full-sized candy bar  Despair = Broken Glow Stick  Meh = Lollipops
+
+```
+
+```{r}
+##How many people rated Starburst as despair?
+
+filter_starburst <- all_data_bind[all_data_bind$candy_type == "Starburst", ]
+
+starburst_ratings <- sum(grepl("DESPAIR", filter_starburst$rating, ignore.case = TRUE)) 
+
+#ANSWER: 1990
+```
+
+```{r}
+##For the next three questions, count despair as -1, joy as +1, and meh as 0.
+##What was the most popular candy bar by this rating system for each gender in the dataset ?
+##GENDER, COUNTRY AND MEH RATING ONLY AVAILABLE IN 2016 AND 2017 SURVEYS
+
+##TURN OFF PLYR TO RUN GROUP_BY, TURN ON FOR RBIND
+
+new_column <- all_data_bind_age %>%           
+  mutate(rate_no = rating) 
+
+new_column$rate_no <- gsub("JOY", "2", new_column$rate_no)
+new_column$rate_no <- gsub("DESPAIR", "1", new_column$rate_no)
+new_column$rate_no <- gsub("MEH", "0", new_column$rate_no)
+
+new_column$rate_no <- as.numeric(new_column$rate_no)
+
+new_column <- new_column %>%
+  drop_na(rate_no)
+
+
+male <- subset(new_column, grepl("Male", your_gender)) 
+
+male_fav <- male %>%
+  group_by(candy_type) %>%
+  summarize(total = sum(rate_no))
+
+male_fav_sorted <- male_fav[order(male_fav$total), ]
+
+female <- subset(new_column, grepl("Female", your_gender))  
+
+female_fav <- female %>%
+  group_by(candy_type) %>%
+  summarize(total = sum(rate_no))
+
+female_fav_sorted <- female_fav[order(female_fav$total), ]
+
+#ANSWER:  Male, Any full sized candy bar  Female, Any full sized candy bar
+
+```
+
+```{r}
+##What was the most popular candy bar in each year?
+
+#filter year
+options(dplyr.summarise.inform = FALSE)
+  
+pop_candy_year <- new_column %>%
+  group_by(year, candy_type) %>%
+  dplyr::summarize(total = sum(rate_no))
+
+pop_2 <- pop_candy_year[order(pop_candy_year$year,pop_candy_year$total),] 
+
+#ANSWER: 2015, 2016 and 2017: any full sized candy bar
+
+```
+
+```{r}
+##What was the most popular candy bar by this rating for people in US, Canada, UK, and all other countries?
+
+US <- subset(new_column, grepl("US", country)) 
+
+options(dplyr.summarise.inform = FALSE)
+  
+pop_candy_US <- US %>%
+  group_by(candy_type) %>%
+  dplyr::summarize(total = sum(rate_no))
+
+US_sorted <- pop_candy_US[order(pop_candy_US$total), ]
+
+
+UK <- subset(new_column, grepl("UK", country)) 
+
+options(dplyr.summarise.inform = FALSE)
+  
+pop_candy_UK <- UK %>%
+  group_by(candy_type) %>%
+  dplyr::summarize(total = sum(rate_no))
+
+UK_sorted <- pop_candy_UK[order(pop_candy_UK$total), ]
+
+
+Canada <- subset(new_column, grepl("Canada", country)) 
+
+options(dplyr.summarise.inform = FALSE)
+  
+pop_candy_Canada <- Canada %>%
+  group_by(candy_type) %>%
+  dplyr::summarize(total = sum(rate_no))
+
+Canada_sorted <- pop_candy_Canada[order(pop_candy_Canada$total), ]
+
+Other <- subset(new_column, grepl("Other", country)) 
+
+options(dplyr.summarise.inform = FALSE)
+  
+pop_candy_Other <- Other %>%
+  group_by(candy_type) %>%
+  dplyr::summarize(total = sum(rate_no))
+
+Other_sorted <- pop_candy_Other[order(pop_candy_Other$total), ]
+
+
+#ANSWER: US: Any full Sized candy bar  UK: Cash or other forms of legal tender  Canada: Any full sized candy bar  Other: Cash or other forms of legal tender
+```
+
+```{r}
+##Visualisation Ideas: 
+##Proportion of ratings (per year / per gender)
+#turn plyr back on 
+
+visual_bind <- rbind.fill(pivot_2016, pivot_2017)
+
+visual_column <- visual_bind %>%           
+  mutate(rate_no = rating) 
+
+visual_column$rate_no <- gsub("JOY", "2", visual_column$rate_no)
+visual_column$rate_no <- gsub("DESPAIR", "1", visual_column$rate_no)
+visual_column$rate_no <- gsub("MEH", "0", visual_column$rate_no)
+
+visual_column$rate_no <- as.numeric(visual_column$rate_no)
+
+visual_column <- visual_column %>%
+  drop_na(rate_no)
+
+gender_filter <- visual_column %>% filter(your_gender %in% c("Male", "Female"))
+
+vsgg <- gender_filter %>%
+  group_by(year, your_gender) %>%
+  dplyr::summarize(total = sum(rate_no))
+
+ggplot(vsgg, aes(x = year, y = total, fill = your_gender)) +
+  geom_col(position = "dodge") +
+  labs(x = "Year", y = "Total Number of Ratings", fill = "Gender") +
+  scale_fill_manual(values = c("#aea3cd", "#926aa6")) +
+  theme_minimal()+
+  scale_x_continuous(breaks = seq(min(vsgg$year), max(vsgg$year), by = 1))+
+  scale_y_continuous(breaks = seq(0, max(vsgg$total), by = 20000))+
+  theme(panel.border = element_rect(color = "grey", fill = NA, size = 2))
+
+ggsave("gender_ratings.jpg", width = 10, height = 6, dpi = 300)
+```
+

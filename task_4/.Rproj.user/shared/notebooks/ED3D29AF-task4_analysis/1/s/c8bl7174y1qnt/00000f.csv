@@ -1,0 +1,7 @@
+"0","##How many people rated Starburst as despair?"
+"0",""
+"0","filter_starburst <- all_data_bind[all_data_bind$candy_type == ""Starburst"", ]"
+"0",""
+"0","starburst_ratings <- sum(grepl(""DESPAIR"", filter_starburst$rating, ignore.case = TRUE)) "
+"0",""
+"0","#ANSWER: 1990"
